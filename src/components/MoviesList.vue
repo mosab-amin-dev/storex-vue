@@ -37,7 +37,7 @@
                 <input type="text" class="form-control"
                 v-model="currentMovie.name"
                 name="name"
-                v-on:change="updateTitle"
+                
                 />
                </div>
                <div class="form-group">
@@ -49,12 +49,12 @@
                   v-model="currentMovie.description"
                   name="description"
                   rows="5"
-                  v-on:change="updateDes">
+                  >
                 </textarea>
               </div>
               <div class="form-group">
                 <label for="category_id">Category </label>
-                <select v-model="currentMovie.category_id" class="form-control" v-on:change="updateCat">
+                <select v-model="currentMovie.category_id" class="form-control" >
                   <option value=0 selected>select category</option>
                   <option v-for="(category, index) in categories" :value="category.id" :key="index">
                     {{ category.name }}
@@ -75,6 +75,12 @@
           <div v-else>
             <br />
             <p>Please click on a Movie...</p>
+              <select class="form-control" v-on:change="updateCat">
+                  <option value=null selected>select category</option>
+                  <option v-for="(category, index) in categories" :value="category.id" :key="index">
+                    {{ category.name }}
+                  </option>
+                </select>
           </div>
         </div>
       </div>
@@ -95,11 +101,23 @@
         name: "",
         imageFullPath:'',
         editing:false,
-        categories:null
+        categories:null,
+        selectedCategory:null
       };
     },
     methods: {
       retrieveMovies() {
+        if(this.selectedCategory){
+          MovieDataService.listByCategory(this.selectedCategory)
+          .then(response => {
+            this.movies = response.data.message;
+            console.log(response.data);
+          })
+          .catch(e => {
+            console.log(e);
+          });
+        }
+        else{
         MovieDataService.getAll()
           .then(response => {
             this.movies = response.data.message;
@@ -108,6 +126,7 @@
           .catch(e => {
             console.log(e);
           });
+        }
       },
       getCategories(){
         MovieDataService.getCategories().then((categories) => {
@@ -148,15 +167,9 @@
       uploadImage(e){
       this.currentMovie.image=e.target.files[0]
       },
-      updateTitle(e){
-      this.currentMovie.name=e.target.value;
-      console.log(this.currentMovie.name);
-      },
-      updateDes(e){
-      this.currentMovie.description=e.target.value
-      },
       updateCat(e){
-      this.currentMovie.category_id=e.target.value
+      this.selectedCategory=e.target.value;
+      this.refreshList()
       },
 
       refreshList() {

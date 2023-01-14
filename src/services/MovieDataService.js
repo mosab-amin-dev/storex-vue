@@ -22,8 +22,8 @@ class MovieDataService {
     return http.delete(`api/movies/${id}`,{ headers: authHeader() });
   }
 
-  findByTitle(title) {
-    return http.get(`api/movies?title=${title}`,{ headers: authHeader() });
+  listByCategory(id) {
+    return http.get(`api/moviesByCategory/${id}`,{ headers: authHeader() });
   }
   getCategories(){
     return http.get('api/category',{ headers: authHeader() });
